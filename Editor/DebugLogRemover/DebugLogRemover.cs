@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
@@ -30,10 +31,13 @@ public class DebugLogRemover : MonoBehaviour
             if (Directory.Exists(scriptPath))
                 continue;
 
-            // 스크립트 파일의 모든 라인을 읽어온다
-            string[] lines = File.ReadAllLines(scriptPath);
+            // 한글 깨짐 수정(UTF-8 BOM 추가)
+            var utf8 = new UTF8Encoding(true);
 
-            // "Debug.Log(...);" 패턴을 포함하지 않는 라인만 필터링한다.
+            // 스크립트 파일의 모든 라인을 읽어온다
+            // 파일을 UTF-8로 읽어오도록 시도
+            string[] lines = File.ReadAllLines(scriptPath, Encoding.Default);
+
             // 정규식을 사용하여 다양한 형태의 Debug.Log 구문 찾기
             var newLines = lines
                 .Where(line => !Regex.IsMatch(line, @"Debug\.Log\s*\(.*\);"))
@@ -43,10 +47,11 @@ public class DebugLogRemover : MonoBehaviour
             if (newLines.Length < lines.Length)
             {
                 // 변경된 내용으로 파일을 다시 씁니다.
-                File.WriteAllLines(scriptPath, newLines);
+                // UTF-8 BOM이 포함된 인코딩으로 저장하여 한글 깨짐 방지
+                File.WriteAllLines(scriptPath, newLines, utf8);
 
-                // 어떤 파일이 수정됐는지 콘솔에 로그를 남기기
-                Debug.Log($"Remove Debug.Log statements from : {path}");
+                // 변경된 파일 수 증가
+                filesModified++;
             }
         }
 
