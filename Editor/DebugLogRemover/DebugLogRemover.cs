@@ -67,4 +67,40 @@ public class DebugLogRemover : MonoBehaviour
             EditorUtility.DisplayDialog("Result", "No Debug.Log statements found.", "OK");
         }
     }
+
+    #region 확장형 구조
+
+    /* 
+    void RemoveLogs(string pattern)
+    {
+        var encoding = new UTF8Encoding(true);
+
+        foreach (var path in allAssetPaths)
+        {
+            if (!path.StartsWith("Assets") || !path.EndsWith(".cs"))
+                continue;
+
+            var scriptPath = Path.GetFullPath(path);
+
+            if (Directory.Exists(scriptPath))
+                continue;
+
+            string[] lines = File.ReadAllLines(scriptPath, encoding);
+
+            var newLines = lines
+                .Where(line => !Regex.IsMatch(line, pattern))
+                .ToArray();
+
+            if (newLines.Length < lines.Length)
+            {
+                File.WriteAllLines(scriptPath, newLines, encoding);
+            }
+        }
+    }
+
+    RemoveLogs(@"Debug\.Log\s*\(.*?\);");
+    RemoveLogs(@"GameLogger\.Log\w*\s*\(.*?\);");
+    */
+
+    #endregion
 }
